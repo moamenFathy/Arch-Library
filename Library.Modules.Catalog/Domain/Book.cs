@@ -18,4 +18,16 @@ public class Book
 
         return new Book { Id = Guid.NewGuid(), Title = title, Author = author, Isbn = isbn };
     }
+    
+    public void Update(string title, string author)
+    {
+        if (string.IsNullOrWhiteSpace(title)) 
+            throw new ArgumentException("Title is required");
+        
+        if (string.IsNullOrWhiteSpace(author)) 
+            throw new ArgumentException("Author is required");
+
+        Title = title;
+        Author = author;
+    }
 }

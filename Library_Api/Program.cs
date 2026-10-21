@@ -1,4 +1,5 @@
 using Library.Modules.Catalog;
+using Library.Modules.Catalog.Application.Books;
 using Library.Modules.Catalog.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -22,28 +23,34 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
+// Endpoint لقراءة كل الكتب
+app.MapGet("/api/books", async (BookQueries queries, CancellationToken ct) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    var books = await queries.GetAllAsync(ct);
+    return Results.Ok(books);
+});
 
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast");
+// Endpoint لقراءة كتاب محدد
+app.MapGet("/api/books/{id:guid}", async (Guid id, BookQueries queries, CancellationToken ct) =>
+{
+    var book = await queries.GetByIdAsync(id, ct);
+    return book is not null ? Results.Ok(book) : Results.NotFound();
+});
+
+// Endpoint لإنشاء كتاب جديد
+app.MapPost("/api/books", async (CreateBookCommand command, BookService service, CancellationToken ct) =>
+{
+    var bookId = await service.CreateBookAsync(command, ct);
+    return Results.Created($"/api/books/{bookId}", new { Id = bookId });
+});
+
+// Endpoint لتحديث كتاب موجود
+app.MapPut("/api/books/{id:guid}", async (Guid id, UpdateBookRequest request, BookService service, CancellationToken ct) =>
+{
+    var command = new UpdateBookCommand(id, request.Title, request.Author);
+    var updated = await service.UpdateBookAsync(command, ct);
+
+    return updated ? Results.NoContent() : Results.NotFound();
+});
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

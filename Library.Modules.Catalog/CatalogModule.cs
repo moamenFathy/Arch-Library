@@ -1,5 +1,6 @@
 // CatalogModule.cs
 using Library.Modules.Catalog.Application;
+using Library.Modules.Catalog.Application.Books;
 using Library.Modules.Catalog.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +17,8 @@ public static class CatalogModule
                 npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "catalog")));
 
         services.AddScoped<IBookRepository, BookRepository>();
+        services.AddScoped<BookService>();
+        services.AddScoped<BookQueries>();
 
         return services;
     }
