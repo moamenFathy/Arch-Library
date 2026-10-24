@@ -10,20 +10,17 @@ namespace Library_Api.Controllers;
 [ApiController]
 public class CategoriesController(CategoryQueries queries, CategoryService service) : ControllerBase
 {
-    private readonly CategoryQueries _queries = queries;
-    private readonly CategoryService _service = service;
-
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        var categories = await _queries.GetAllAsync(ct);
+        var categories = await queries.GetAllAsync(ct);
         return Ok(ApiResponse<IReadOnlyList<CategoryDto>>.Success(categories, "Categories retrieved successfully"));
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        var category = await _queries.GetCategoryByIdAsync(id, ct);
+        var category = await queries.GetCategoryByIdAsync(id, ct);
         if (category is null)
         {
             return NotFound(ApiResponse<CategoryDto>.Failure($"Category with ID '{id}' was not found."));
@@ -35,7 +32,7 @@ public class CategoriesController(CategoryQueries queries, CategoryService servi
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateCategoryCommand command, CancellationToken ct)
     {
-        var categoryId = await _service.CreateCategoryAsync(command, ct);
+        var categoryId = await service.CreateCategoryAsync(command, ct);
         var response = ApiResponse<Guid>.Success(categoryId, "Category created successfully");
 
         return CreatedAtAction(nameof(GetById), new { id = categoryId }, response);
@@ -45,12 +42,7 @@ public class CategoriesController(CategoryQueries queries, CategoryService servi
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCategoryRequest request, CancellationToken ct)
     {
         var command = new UpdateCategoryCommand(id, request.Name, request.Description, request.IsActive);
-        var updated = await _service.UpdateCategoryAsync(id, command, ct);
-        
-        if (!updated)
-        {
-            return NotFound(ApiResponse.Failure($"Category with ID '{id}' was not found."));
-        }
+        await service.UpdateCategoryAsync(command, ct);
 
         return Ok(ApiResponse.Success("Category updated successfully"));
     }

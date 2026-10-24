@@ -1,47 +1,38 @@
 using Library.Modules.Catalog.Domain;
+using Library.Shared.Exceptions;
 
 namespace Library.Modules.Catalog.Application.Categories;
 
 public class CategoryService(ICategoryRepository categoryRepository)
 {
-  private readonly ICategoryRepository _categoryRepository = categoryRepository;
-  
-  // create a new category
-  public async Task<Guid> CreateCategoryAsync(CreateCategoryCommand command, CancellationToken ct = default)
-  {
-    
-    if (await _categoryRepository.CategoryExistsAsync(command.Name, ct))
+    public async Task<Guid> CreateCategoryAsync(CreateCategoryCommand command, CancellationToken ct = default)
     {
-      throw new InvalidOperationException($"Category with name '{command.Name}' already exists.");
-    }
-    
-    var category = Category.Create(command.Name, command.Description, command.IsActive);
+        if (await categoryRepository.CategoryExistsAsync(command.Name, ct))
+        {
+            throw AppException.Conflict($"Category with name '{command.Name}' already exists.");
+        }
 
-    await _categoryRepository.AddCategoryAsync(category, ct);
-    await _categoryRepository.SaveChangesAsync(ct);
-    
-    return category.Id;
-  }
-  
-  // update a category
-  public async Task<bool> UpdateCategoryAsync(Guid id, UpdateCategoryCommand command, CancellationToken ct = default)
-  {
-    var category = await _categoryRepository.GetCategoryByIdAsync(id, ct);
-    if (category is null)
-    {
-      return false;
+        var category = Category.Create(command.Name, command.Description, command.IsActive);
+        await categoryRepository.AddCategoryAsync(category, ct);
+        await categoryRepository.SaveChangesAsync(ct);
+
+        return category.Id;
     }
 
-    category.Update(command.Name, command.Description, command.IsActive);
+    public async Task UpdateCategoryAsync(UpdateCategoryCommand command, CancellationToken ct = default)
+    {
+        var category = await categoryRepository.GetCategoryByIdAsync(command.Id, ct);
+        if (category is null)
+        {
+            throw AppException.NotFound($"Category with ID '{command.Id}' was not found.");
+        }
 
-    await _categoryRepository.SaveChangesAsync(ct);
+        category.Update(command.Name, command.Description, command.IsActive);
+        await categoryRepository.SaveChangesAsync(ct);
+    }
 
-    return true;
-  }
-
-  // is category exists
-  public async Task<bool> CategoryExistsAsync(string name, CancellationToken ct = default)
-  {
-    return await _categoryRepository.CategoryExistsAsync(name, ct);
-  }
+    public async Task<bool> CategoryExistsAsync(string name, CancellationToken ct = default)
+    {
+        return await categoryRepository.CategoryExistsAsync(name, ct);
+    }
 }

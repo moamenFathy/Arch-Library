@@ -10,20 +10,17 @@ namespace Library_Api.Controllers;
 [Route("api/[controller]")]
 public class BooksController(BookQueries queries, BookService service) : ControllerBase
 {
-    private readonly BookQueries _queries = queries;
-    private readonly BookService _service = service;
-    
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        var books = await _queries.GetAllAsync(ct);
+        var books = await queries.GetAllAsync(ct);
         return Ok(ApiResponse<IReadOnlyList<BookDto>>.Success(books, "Books retrieved successfully"));
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        var book = await _queries.GetByIdAsync(id, ct);
+        var book = await queries.GetByIdAsync(id, ct);
         if (book is null)
         {
             return NotFound(ApiResponse<BookDto>.Failure($"Book with ID '{id}' was not found."));
@@ -35,9 +32,7 @@ public class BooksController(BookQueries queries, BookService service) : Control
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateBookCommand command, CancellationToken ct)
     {
-        // إذا كان Title أو Author فارغاً، ميثود Book.Create سترمي ArgumentException
-        // الـ GlobalExceptionHandler سيلتقطه تلقائياً ويرجع 400 BadRequest مع ApiResponse
-        var bookId = await _service.CreateBookAsync(command, ct);
+        var bookId = await service.CreateBookAsync(command, ct);
         var response = ApiResponse<Guid>.Success(bookId, "Book created successfully");
         
         return CreatedAtAction(nameof(GetById), new { id = bookId }, response);
@@ -47,12 +42,7 @@ public class BooksController(BookQueries queries, BookService service) : Control
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateBookRequest request, CancellationToken ct)
     {
         var command = new UpdateBookCommand(id, request.Title, request.Author);
-        var updated = await _service.UpdateBookAsync(command, ct);
-
-        if (!updated)
-        {
-            return NotFound(ApiResponse.Failure($"Book with ID '{id}' was not found."));
-        }
+        await service.UpdateBookAsync(command, ct);
 
         return Ok(ApiResponse.Success("Book updated successfully"));
     }

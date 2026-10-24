@@ -1,44 +1,41 @@
 using System.Net;
 using Library_Api.Common;
+using Library.Shared.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace Library_Api.Infrastructure;
 
-public class GlobalExceptionHandler : IExceptionHandler
+public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
-  private readonly ILogger<GlobalExceptionHandler> _logger;
-
-  public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
-  {
-    _logger = logger;
-  }
-
-  public async ValueTask<bool> TryHandleAsync(
-    HttpContext httpContext,
-    Exception exception,
-    CancellationToken cancellationToken)
-  {
-    _logger.LogError(exception, "An unhandled exception occurred: {Message}", exception.Message);
-  
-    // تحديد كود الـ HTTP Status ورسالة الخطأ بناءً على نوع الـ Exception
-    var (statusCode, message) = exception switch
+    public async ValueTask<bool> TryHandleAsync(
+        HttpContext httpContext,
+        Exception exception,
+        CancellationToken cancellationToken)
     {
-      ArgumentException argEx => (HttpStatusCode.BadRequest, argEx.Message),
-      KeyNotFoundException notFoundEx => (HttpStatusCode.NotFound, notFoundEx.Message),
-      _ => (HttpStatusCode.InternalServerError, "An unexpected error occurred. Please try again later.")
-    };
-  
-    httpContext.Response.StatusCode = (int)statusCode;
-    httpContext.Response.ContentType = "application/json";
-  
-    var response = ApiResponse.Failure(
-      message: message,
-      errors: new List<string> { exception.Message }
-    );
-  
-    await httpContext.Response.WriteAsJsonAsync(response, cancellationToken);
-  
-    // إرجاع true يعني أن الـ Exception تم التعامل معه بنجاح ولا داعي لتمريره للأعلى
-    return true;
-  }
+        logger.LogError(exception, "An unhandled exception occurred: {Message}", exception.Message);
+
+        var (statusCode, message) = exception switch
+        {
+            AppException appEx => (appEx.StatusCode, appEx.Message),
+            ArgumentException argEx => (HttpStatusCode.BadRequest, argEx.Message),
+            KeyNotFoundException notFoundEx => (HttpStatusCode.NotFound, notFoundEx.Message),
+            _ => (HttpStatusCode.InternalServerError, "An unexpected error occurred. Please try again later.")
+        };
+
+        httpContext.Response.StatusCode = (int)statusCode;
+        httpContext.Response.ContentType = "application/json";
+
+        var errors = statusCode == HttpStatusCode.InternalServerError
+            ? null
+            : new List<string> { message };
+
+        var response = ApiResponse.Failure(
+            message: message,
+            errors: errors
+        );
+
+        await httpContext.Response.WriteAsJsonAsync(response, cancellationToken);
+
+        return true;
+    }
 }
