@@ -74,6 +74,27 @@ namespace Library.Modules.Catalog.Infrastructure.Migrations
                             Title = "Refactoring"
                         });
                 });
+
+            modelBuilder.Entity("Library.Modules.Catalog.Domain.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories", "catalog");
+                });
 #pragma warning restore 612, 618
         }
     }

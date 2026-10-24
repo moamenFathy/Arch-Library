@@ -1,6 +1,7 @@
 // CatalogModule.cs
 using Library.Modules.Catalog.Application;
 using Library.Modules.Catalog.Application.Books;
+using Library.Modules.Catalog.Application.Categories;
 using Library.Modules.Catalog.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +20,9 @@ public static class CatalogModule
         services.AddScoped<IBookRepository, BookRepository>();
         services.AddScoped<BookService>();
         services.AddScoped<BookQueries>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<CategoryService>();
+        services.AddScoped<CategoryQueries>();
 
         return services;
     }
