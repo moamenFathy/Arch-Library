@@ -1,14 +1,13 @@
 using Library_Api.Common;
 using Library_Api.Common.Contracts;
 using Library.Modules.Catalog.Application.Books;
-using Library.Modules.Catalog.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library_Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class BooksController(BookQueries queries, BookService service) : ControllerBase
+public class BooksController(IBookQueries queries, BookService service) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)

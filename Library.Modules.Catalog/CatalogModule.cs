@@ -19,10 +19,11 @@ public static class CatalogModule
 
         services.AddScoped<IBookRepository, BookRepository>();
         services.AddScoped<BookService>();
-        services.AddScoped<BookQueries>();
+        services.AddScoped<IBookQueries, BookQueries>();
+        
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<CategoryService>();
-        services.AddScoped<CategoryQueries>();
+        services.AddScoped<ICategoryQueries, CategoryQueries>();
 
         return services;
     }

@@ -1,14 +1,13 @@
 using Library_Api.Common;
 using Library_Api.Common.Contracts;
 using Library.Modules.Catalog.Application.Categories;
-using Library.Modules.Catalog.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library_Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CategoriesController(CategoryQueries queries, CategoryService service) : ControllerBase
+public class CategoriesController(ICategoryQueries queries, CategoryService service) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)

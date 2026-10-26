@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.Modules.Catalog.Infrastructure.Persistence;
 
-public class CategoryQueries(CatalogDbContext context)
+public class CategoryQueries(CatalogDbContext context) : ICategoryQueries
 {
     // get all with no tracking
     public async Task<List<CategoryDto>> GetAllAsync(CancellationToken ct = default)

@@ -1,9 +1,5 @@
-using Library_Api.Common;
 using Library_Api.Infrastructure;
 using Library.Modules.Catalog;
-using Library.Modules.Catalog.Application.Books;
-using Library.Modules.Catalog.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
