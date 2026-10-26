@@ -1,12 +1,18 @@
+using FluentValidation;
 using Library.Modules.Catalog.Domain;
 using Library.Shared.Exceptions;
 
 namespace Library.Modules.Catalog.Application.Categories;
 
-public class CategoryService(ICategoryRepository categoryRepository)
+public class CategoryService(
+    ICategoryRepository categoryRepository,
+    IValidator<CreateCategoryCommand> createValidator,
+    IValidator<UpdateCategoryCommand> updateValidator)
 {
     public async Task<Guid> CreateCategoryAsync(CreateCategoryCommand command, CancellationToken ct = default)
     {
+        await createValidator.ValidateAndThrowAsync(command, ct);
+
         if (await categoryRepository.CategoryExistsAsync(command.Name, ct))
         {
             throw AppException.Conflict($"Category with name '{command.Name}' already exists.");
@@ -21,6 +27,8 @@ public class CategoryService(ICategoryRepository categoryRepository)
 
     public async Task UpdateCategoryAsync(UpdateCategoryCommand command, CancellationToken ct = default)
     {
+        await updateValidator.ValidateAndThrowAsync(command, ct);
+
         var category = await categoryRepository.GetCategoryByIdAsync(command.Id, ct);
         if (category is null)
         {

@@ -1,4 +1,5 @@
 // CatalogModule.cs
+using FluentValidation;
 using Library.Modules.Catalog.Application;
 using Library.Modules.Catalog.Application.Books;
 using Library.Modules.Catalog.Application.Categories;
@@ -16,6 +17,9 @@ public static class CatalogModule
         services.AddDbContext<CatalogDbContext>(options =>
             options.UseNpgsql(config.GetConnectionString("DefaultConnection"),
                 npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "catalog")));
+
+        // Validators
+        services.AddValidatorsFromAssembly(typeof(CatalogModule).Assembly);
 
         services.AddScoped<IBookRepository, BookRepository>();
         services.AddScoped<BookService>();

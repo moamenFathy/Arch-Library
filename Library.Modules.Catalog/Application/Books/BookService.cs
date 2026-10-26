@@ -1,12 +1,19 @@
+using FluentValidation;
 using Library.Modules.Catalog.Domain;
 using Library.Shared.Exceptions;
 
 namespace Library.Modules.Catalog.Application.Books;
 
-public class BookService(IBookRepository bookRepository, ICategoryRepository categoryRepository)
+public class BookService(
+    IBookRepository bookRepository, 
+    ICategoryRepository categoryRepository,
+    IValidator<CreateBookCommand> createValidator,
+    IValidator<UpdateBookCommand> updateValidator)
 {
     public async Task<Guid> CreateBookAsync(CreateBookCommand command, CancellationToken ct = default)
     {
+        await createValidator.ValidateAndThrowAsync(command, ct);
+
         // التحقق من وجود التصنيف أولاً
         var category = await categoryRepository.GetCategoryByIdAsync(command.CategoryId, ct);
         if (category is null)
@@ -28,6 +35,8 @@ public class BookService(IBookRepository bookRepository, ICategoryRepository cat
 
     public async Task UpdateBookAsync(UpdateBookCommand command, CancellationToken ct = default)
     {
+        await updateValidator.ValidateAndThrowAsync(command, ct);
+
         var book = await bookRepository.GetByIdAsync(command.Id, ct);
         if (book is null)
         {

@@ -1,5 +1,7 @@
+using FluentValidation;
 using Library_Api.Infrastructure;
 using Library.Modules.Catalog;
+using Microsoft.AspNetCore.Mvc;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,11 +11,20 @@ builder.Services.AddCatalogModule(builder.Configuration);
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-// Add services to the container.
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+});
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-
-builder.Services.AddControllers();
 
 var app = builder.Build();
 
