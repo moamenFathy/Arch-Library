@@ -34,6 +34,9 @@ namespace Library.Modules.Catalog.Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Isbn")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -46,33 +49,12 @@ namespace Library.Modules.Catalog.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("Isbn")
                         .IsUnique();
 
                     b.ToTable("Books", "catalog");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Author = "Robert C. Martin",
-                            Isbn = "978-0134494166",
-                            Title = "Clean Architecture"
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Author = "Eric Evans",
-                            Isbn = "978-0321125217",
-                            Title = "Domain-Driven Design"
-                        },
-                        new
-                        {
-                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            Author = "Martin Fowler",
-                            Isbn = "978-0201485677",
-                            Title = "Refactoring"
-                        });
                 });
 
             modelBuilder.Entity("Library.Modules.Catalog.Domain.Category", b =>
@@ -101,6 +83,22 @@ namespace Library.Modules.Catalog.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Categories", "catalog");
+                });
+
+            modelBuilder.Entity("Library.Modules.Catalog.Domain.Book", b =>
+                {
+                    b.HasOne("Library.Modules.Catalog.Domain.Category", "Category")
+                        .WithMany("Books")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Library.Modules.Catalog.Domain.Category", b =>
+                {
+                    b.Navigation("Books");
                 });
 #pragma warning restore 612, 618
         }

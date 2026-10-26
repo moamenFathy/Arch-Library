@@ -40,7 +40,7 @@ public class BooksController(IBookQueries queries, BookService service) : Contro
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateBookRequest request, CancellationToken ct)
     {
-        var command = new UpdateBookCommand(id, request.Title, request.Author);
+        var command = new UpdateBookCommand(id, request.Title, request.Author, request.CategoryId);
         await service.UpdateBookAsync(command, ct);
 
         return Ok(ApiResponse.Success("Book updated successfully"));

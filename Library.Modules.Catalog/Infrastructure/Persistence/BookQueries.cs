@@ -10,7 +10,7 @@ public class BookQueries(CatalogDbContext context) : IBookQueries
     {
         return await context.Books
             .AsNoTracking()    
-            .Select(b => new BookDto(b.Id, b.Title, b.Author, b.Isbn))
+            .Select(b => new BookDto(b.Id, b.Title, b.Author, b.Isbn, b.CategoryId, b.Category.Name))
             .ToListAsync(ct);
     }
     
@@ -20,7 +20,7 @@ public class BookQueries(CatalogDbContext context) : IBookQueries
         return await context.Books
             .AsNoTracking()
             .Where(b => b.Id == id)
-            .Select(b => new BookDto(b.Id, b.Title, b.Author, b.Isbn))
+            .Select(b => new BookDto(b.Id, b.Title, b.Author, b.Isbn, b.CategoryId, b.Category.Name))
             .FirstOrDefaultAsync(ct);
     }
 }

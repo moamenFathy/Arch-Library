@@ -1,3 +1,3 @@
 namespace Library.Modules.Catalog.Application.Books;
 
-public record BookDto(Guid Id, string Title, string Author, string Isbn);
+public record BookDto(Guid Id, string Title, string Author, string Isbn, Guid CategoryId, string CategoryName);
