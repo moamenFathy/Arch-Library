@@ -33,6 +33,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+    await app.Services.SeedCatalogDataAsync();
 }
 
 app.UseExceptionHandler();

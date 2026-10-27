@@ -7,6 +7,7 @@ using Library.Modules.Catalog.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Library.Modules.Catalog;
 
@@ -30,5 +31,13 @@ public static class CatalogModule
         services.AddScoped<ICategoryQueries, CategoryQueries>();
 
         return services;
+    }
+
+    public static async Task SeedCatalogDataAsync(this IServiceProvider services)
+    {
+        using var scope = services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+        var logger = scope.ServiceProvider.GetService<ILogger<CatalogDbContext>>();
+        await CatalogDataSeeder.SeedAsync(context, logger);
     }
 }

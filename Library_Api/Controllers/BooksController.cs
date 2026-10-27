@@ -1,6 +1,7 @@
 using Library_Api.Common;
 using Library_Api.Common.Contracts;
 using Library.Modules.Catalog.Application.Books;
+using Library.Shared.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library_Api.Controllers;
@@ -10,10 +11,10 @@ namespace Library_Api.Controllers;
 public class BooksController(IBookQueries queries, BookService service) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
+    public async Task<IActionResult> GetAll([FromQuery] BookFilterParams filter, CancellationToken ct)
     {
-        var books = await queries.GetAllAsync(ct);
-        return Ok(ApiResponse<IReadOnlyList<BookDto>>.Success(books, "Books retrieved successfully"));
+        var books = await queries.GetAllAsync(filter, ct);
+        return Ok(ApiResponse<PagedResult<BookDto>>.Success(books, "Books retrieved successfully"));
     }
 
     [HttpGet("{id:guid}")]

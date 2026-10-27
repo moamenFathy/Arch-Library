@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -13,23 +13,8 @@ namespace Library.Modules.Catalog.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DeleteData(
-                schema: "catalog",
-                table: "Books",
-                keyColumn: "Id",
-                keyValue: new Guid("11111111-1111-1111-1111-111111111111"));
-
-            migrationBuilder.DeleteData(
-                schema: "catalog",
-                table: "Books",
-                keyColumn: "Id",
-                keyValue: new Guid("22222222-2222-2222-2222-222222222222"));
-
-            migrationBuilder.DeleteData(
-                schema: "catalog",
-                table: "Books",
-                keyColumn: "Id",
-                keyValue: new Guid("33333333-3333-3333-3333-333333333333"));
+            // تنظيف أي بيانات تجريبية قديمة لضمان صحة المفتاح الخارجي
+            migrationBuilder.Sql("DELETE FROM catalog.\"Books\";");
 
             migrationBuilder.AddColumn<Guid>(
                 name: "CategoryId",
