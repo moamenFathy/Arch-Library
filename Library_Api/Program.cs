@@ -1,12 +1,14 @@
 using FluentValidation;
 using Library_Api.Infrastructure;
 using Library.Modules.Catalog;
+using Library.Modules.Members;
 using Microsoft.AspNetCore.Mvc;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCatalogModule(builder.Configuration);
+builder.Services.AddMembersModule(builder.Configuration);
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
